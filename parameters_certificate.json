@@ -1,0 +1,8 @@
+{
+  "authority": "https://login.microsoftonline.com/testlaser.onmicrosoft.com",
+  "client_id": "181a70f5-0022-4422-8057-1027ad6753bb",
+  "scope": [ "OnlineMeetings.ReadWrite"],
+  "thumbprint": "DA2F00462C08574217C21531FFB6603CF1FE84A4",
+  "private_key_file": "server.pem",
+  "endpoint": "https://graph.microsoft.com/v1.0/users/8a11475d-60eb-4a57-8166-942527964592/onlineMeetings",
+}
