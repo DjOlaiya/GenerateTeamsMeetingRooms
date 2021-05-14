@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, jsonify
 import json
 import logging
 
@@ -67,7 +67,7 @@ def get_meeting_room():
         # You may need this when reporting a MS bug
         print(result.get("correlation_id"))
 
-    return graph_data['joinUrl']
+    return jsonify(response=graph_data['joinUrl'])
 
 
 if __name__ == '__main__':
