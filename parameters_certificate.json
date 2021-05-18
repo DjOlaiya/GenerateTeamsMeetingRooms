@@ -4,5 +4,5 @@
   "scope": [ "OnlineMeetings.ReadWrite"],
   "thumbprint": "DA2F00462C08574217C21531FFB6603CF1FE84A4",
   "private_key_file": "server.pem",
-  "endpoint": "https://graph.microsoft.com/v1.0/users/8a11475d-60eb-4a57-8166-942527964592/onlineMeetings",
+  "endpoint": "https://graph.microsoft.com/v1.0/users/0464f106-d701-4bd2-b37a-8b101da60765/onlineMeetings",
 }

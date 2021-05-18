@@ -13,47 +13,20 @@ def hello_world():
     return 'Hello World!'
 
 
-@app.route('/meetingRoom')
+@app.route('/meetingRoom', methods=["GET"])
 def get_meeting_room():
+    with open('parameters_client_secret.json') as p:
+        params = json.load(p)
 
-    with open('parameters_client_secret.json') as params:
-        config = json.load(params)
+    result = get_token_for_graph_api(params)
 
-    # Certificate based auth for production
-    # Create a preferably long-lived app instance which maintains a token cache.
-    # app_instance = msal.ConfidentialClientApplication(
-    #     config["client_id"], authority=config["authority"],
-    #     client_credential={"thumbprint": config["thumbprint"], "private_key": open(
-    #         config['private_key_file']).read()},
-    #     # token_cache=...  # Default cache is in memory only.
-    #     # You can learn how to use SerializableTokenCache from
-    #     # https://msal-python.rtfd.io/en/latest/#msal.SerializableTokenCache
-    # )
-
-    # Client credential based auth for testing
-    app_instance = msal.ConfidentialClientApplication(
-        config["client_id"], authority=config["authority"],
-        client_credential=config["secret"],
-    )
-
-    # The pattern to acquire a token looks like this.
-    result = None
-
-    # Firstly, looks up a token from cache
-    # Since we are looking for token for the current app, NOT for an end user,
-    # notice we give account parameter as None.
-    result = app_instance.acquire_token_silent(config["scope"], account=None)
-    if not result:
-        logging.info(
-            "No suitable token exists in cache. Let's get a new one from AAD.")
-        result = app_instance.acquire_token_for_client(scopes=config["scope"])
     if "access_token" in result:
         # Calling graph endpoint using the access token
         body = {
             "subject": "TEST TEST"
         }
         graph_data = requests.post(  # Use token to call downstream service
-            config["endpoint"],
+            params["endpoint"],
             headers={'Authorization': 'Bearer ' + result['access_token'],
                      'Content-type': 'application/json',
                      },
@@ -68,6 +41,36 @@ def get_meeting_room():
         print(result.get("correlation_id"))
 
     return jsonify(response=graph_data['joinUrl'])
+
+
+def get_token_for_graph_api(config):
+    # Client credential based auth for testing
+    app_instance = msal.ConfidentialClientApplication(
+        config["client_id"], authority=config["authority"],
+        client_credential=config["secret"],
+    )
+
+    # Certificate based auth for production
+    # Create a preferably long-lived app instance which maintains a token cache.
+    # app_instance = msal.ConfidentialClientApplication(
+    #     config["client_id"], authority=config["authority"],
+    #     client_credential={"thumbprint": config["thumbprint"], "private_key": open(
+    #         config['private_key_file']).read()},
+    #     # token_cache=...  # Default cache is in memory only.
+    #     # You can learn how to use SerializableTokenCache from
+    #     # https://msal-python.rtfd.io/en/latest/#msal.SerializableTokenCache
+    # )
+
+    result = None
+
+    # Look up a token from cache for current app and not end user (that's why account=None)
+    result = app_instance.acquire_token_silent(config["scope"], account=None)
+    if not result:
+        logging.info(
+            "No suitable token exists in cache. Let's get a new one from AAD.")
+        result = app_instance.acquire_token_for_client(scopes=config["scope"])
+
+    return result
 
 
 if __name__ == '__main__':
