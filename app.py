@@ -1,7 +1,7 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
+from werkzeug.exceptions import BadRequest
 import json
 import logging
-
 import requests
 import msal
 
@@ -21,10 +21,11 @@ def get_meeting_room():
     result = get_token_for_graph_api(params)
 
     if "access_token" in result:
+        meeting_name = request.args.get('subject')
+        if meeting_name is None:
+            return BadRequest("No subject found in request")
         # Calling graph endpoint using the access token
-        body = {
-            "subject": "TEST TEST"
-        }
+        body = {"subject": meeting_name}
         graph_data = requests.post(  # Use token to call downstream service
             params["endpoint"],
             headers={'Authorization': 'Bearer ' + result['access_token'],
@@ -40,7 +41,7 @@ def get_meeting_room():
         # You may need this when reporting a MS bug
         print(result.get("correlation_id"))
 
-    return jsonify(response=graph_data['joinUrl'])
+    return jsonify(joinURL=graph_data['joinUrl']), 201
 
 
 def get_token_for_graph_api(config):
