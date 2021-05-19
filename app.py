@@ -1,5 +1,4 @@
 from flask import Flask, jsonify, request
-from werkzeug.exceptions import BadRequest
 import json
 import logging
 import requests
@@ -23,7 +22,7 @@ def get_meeting_room():
     if "access_token" in result:
         meeting_name = request.args.get('subject')
         if meeting_name is None:
-            return BadRequest("No subject found in request")
+            return jsonify({"error": "No subject found in request"}), 400
         # Calling graph endpoint using the access token
         body = {"subject": meeting_name}
         graph_data = requests.post(  # Use token to call downstream service
