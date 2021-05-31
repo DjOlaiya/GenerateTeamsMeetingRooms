@@ -7,14 +7,13 @@ import msal
 from itsdangerous import (TimedJSONWebSignatureSerializer
                           as Serializer, BadSignature, SignatureExpired)
 
-
 app = Flask(__name__)
 
 
 @app.route('/')
 def hello_world():
     print("testing env file")
-    print(os.environ.get("TECHNICAL_USER")) #works
+    print(os.environ.get("TECHNICAL_USER"))  # works
     return 'Hello World!'
 
 
@@ -46,7 +45,7 @@ def get_meeting_room():
         # You may need this when reporting a MS bug
         print(result.get("correlation_id"))
 
-    return jsonify(joinURL=graph_data['joinUrl']), 201
+    return jsonify(joinURL=graph_data['joinUrl']), 200
 
 
 def get_token_for_graph_api(config):
@@ -78,7 +77,8 @@ def get_token_for_graph_api(config):
 
     return result
 
-class User():
+
+class User:
     user = os.environ.get("TECHNICAL_USER")
 
     def generate_auth_token(self, expiration=600):
@@ -91,9 +91,9 @@ class User():
         try:
             data = s.loads(token)
         except SignatureExpired:
-            return None    # valid token, but expired
+            return None  # valid token, but expired
         except BadSignature:
-            return None    # invalid token
+            return None  # invalid token
         user = User.query.get(data['id'])
         return user
 
@@ -109,7 +109,6 @@ class User():
 #             return False
 #     g.user = user
 #     return True
-
 
 
 if __name__ == '__main__':
