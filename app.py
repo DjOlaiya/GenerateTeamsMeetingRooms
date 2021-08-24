@@ -1,4 +1,6 @@
 from flask import Flask, jsonify, request
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 import json
 import logging
 import os
@@ -8,9 +10,11 @@ from itsdangerous import (TimedJSONWebSignatureSerializer
                           as Serializer, BadSignature, SignatureExpired)
 
 app = Flask(__name__)
+limiter = Limiter(app, key_func=get_remote_address)
 
 
 @app.route('/')
+@limiter.limit("10/minute")
 def hello_world():
     print("testing env file")
     print(os.environ.get("TECHNICAL_USER"))  # works
@@ -18,6 +22,7 @@ def hello_world():
 
 
 @app.route('/meetingRoom', methods=["GET"])
+@limiter.limit("15/minute")
 def get_meeting_room():
     with open('parameters_client_secret.json') as p:
         params = json.load(p)
